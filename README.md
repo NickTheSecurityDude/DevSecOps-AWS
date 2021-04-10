@@ -4,7 +4,7 @@ This guide will show you how to lauch a multi-account DevSecOps CodePipeline.
 
 Currently only US-East-1 is supported.
 
-1. Fill out the helper table below:
+1. Create a helper table like the below:
 
 | Field      | Value |
 | ----------- | ----------- |
