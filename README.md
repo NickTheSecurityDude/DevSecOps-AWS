@@ -19,6 +19,8 @@ Here's how to get started:
 | Tools (DevOps) Acct # | 222222222222 |
 | Target Acct #(s)   | 333333333333,444444444444 |
 
+I recommend using SSO to easily switch between accounts, and you can optionally use 1 - 3+ OU's (Organizational Units) for this.
+
 2. Create the three stacks in order (use us-east-1), wait for each stack to fully complete and log out before moving onto the next,  if you have multiple targets, run the target stack in each of the target accounts.
 
 | Order | Stack     | Launch |
@@ -42,7 +44,7 @@ User APKA...
 IdentityFile ~/.ssh/id_rsa
 ```
 
-- Clone the CodeCommit repo:
+- Clone the CodeCommit repo and create a "testing" branch:
 ```
 git clone ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/<repo name>
 cd <repo name>
