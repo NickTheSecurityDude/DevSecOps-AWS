@@ -15,7 +15,9 @@ Currently only US-East-1 is supported.
 
 2. Create the three stacks in order (use us-east-1), wait for each stack to fully complete and log out before moving onto the next,  if you have multiple targets, run the target stack in each of the target accounts.
 
-Dev Account Stack [![Dev Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch Dev Account Stack")](https://securitydude-pipeline-demo.s3.amazonaws.com/dev-templates/pipeline-MASTER.yaml)
+| Stack     | Launch |
+| ----------- | ----------- |
+| Dev Account Stack | [![Dev Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch Dev Account Stack")](https://securitydude-pipeline-demo.s3.amazonaws.com/dev-templates/pipeline-MASTER.yaml) |
 
 DevOps (Tools) Account Stack [![DevOps (Tools) Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch DevOps (Tools) Account Stack")](https://securitydude-pipeline-demo.s3.amazonaws.com/devops-templates/pipeline-MASTER.yaml)
 
