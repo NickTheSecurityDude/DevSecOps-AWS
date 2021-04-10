@@ -15,7 +15,7 @@ Currently only US-East-1 is supported.
 
 2. Create the stacks in order (use us-east-1), wait for each stack to fully complete before moving onto the next
 
-Dev Account Stack
+[![Dev Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch Dev Account Stack")](https://securitydude-pipeline-demo.s3.amazonaws.com/dev-templates/pipeline-MASTER.yaml)
 
 DevOps (Tools) Account Stack
 
