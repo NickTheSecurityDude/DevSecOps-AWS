@@ -12,6 +12,11 @@ Currently only US-East-1 is supported.
 | Tools (DevOps) Acct # | 222222222222 |
 | Target Acct #(s)   | 333333333333,444444444444 |
 
+| Syntax      | Description |
+| ----------- | ----------- |
+| Header      | Title       |
+| Paragraph   | Text        |
+
 2. Create the stacks in order (use us-east-1), wait for each stack to fully complete before moving onto the next
 
 Dev Account Stack
@@ -46,17 +51,19 @@ IdentityFile ~/.ssh/id_rsa
 4. Goto the DevOps (Tools) Account, and check CodePipeline. (Pipeline may take up to 2-3 minutes to start)
 - The Source and Build Stages should Succeed (note your commit message shows for the "SourceAction"), and then "manually approve" the deployment
 - The next stage is the "Release Lambda", which pushes the repo files to the s3 bucket in each of the target accounts.
-- Once Lambda Succeeds, goto the target accounts, and view CodePipeline
+- Lambda will Succeed.
+ 
+5. Now, goto the target accounts, and view CodePipeline
 - Again, Manually approve the deployment.
 - Now CloudFormation will run
 - Goto CloudFormation and view the resources it has created
 - Repeat for any additional target accounts.
 
-5. For testing:
+6. For testing:
 Remove one of the cfn_nag suppression lines from sg1.yaml.
 Commit the change to the repo.
 A new pipeline run will trigger.
 It will fail on the CodeBuild Step.
 Goto Build-->Report history, and click on the latest report to view the results.
 
-CodeBuild also checks for valid template syntax, for example, remove a : anywhere in the file and commit the change.  CodeBuild will fail and the bad template will not be released to the test/prod environments.
+7. CodeBuild also checks for valid template syntax, for example, remove a : anywhere in the file and commit the change.  CodeBuild will fail and the bad template will not be released to the test/prod environments.
