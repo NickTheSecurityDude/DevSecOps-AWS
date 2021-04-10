@@ -69,6 +69,8 @@ git push origin testing
 - Goto CloudFormation and view the resources it has created
 - Repeat for any additional target accounts.
 
+![Target Account CodePipeline](https://securitydude-article-images.s3.amazonaws.com/target-account-pipeline.png "Target Account CodePipeline")
+
 6. For testing:
 Remove one of the cfn_nag suppression lines from sg1.yaml.
 Commit the change to the repo.
