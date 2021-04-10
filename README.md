@@ -6,6 +6,8 @@ In order to help protect your supply chain (Development Operation) its important
 
 We turn CodePipeline into a DevSecOps pipeline by using CFN_NAG to check out templates for common security issues before deploying them.
 
+<img src="https://securitydude-article-images.s3.amazonaws.com/cfn_nag.png" width="250">
+
 For extra security, we use manual approvals in both the DevOps account, as well as the target accounts, however if your use case allows, you can remove that step to make it fully automated.
 
 Currently only US-East-1 is supported.
@@ -59,8 +61,17 @@ git push origin testing
 ```
 
 4. Goto the DevOps (Tools) Account, and check CodePipeline. (Pipeline may take up to 2-3 minutes to start)
+
+<img src="https://securitydude-article-images.s3.amazonaws.com/codecommit.png" width="600">
+
 - The Source and Build Stages should Succeed (note your commit message shows for the "SourceAction"), and then "manually approve" the deployment
+
+<img src="https://securitydude-article-images.s3.amazonaws.com/codebuild.png" width="600">
+
+<img src="https://securitydude-article-images.s3.amazonaws.com/manual-approval.png" width="600">
+
 - The next stage is the "Release Lambda", which pushes the repo files to the s3 bucket in each of the target accounts.
+
 - Lambda will Succeed.
  
 5. Now, goto the target accounts, and view CodePipeline
