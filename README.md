@@ -13,13 +13,13 @@ Currently only US-East-1 is supported.
 | Tools (DevOps) Acct # | 222222222222 |
 | Target Acct #(s)   | 333333333333,444444444444 |
 
-2. Create the stacks in order (use us-east-1), wait for each stack to fully complete before moving onto the next
+2. Create the three stacks in order (use us-east-1), wait for each stack to fully complete and log out before moving onto the next,  if you have multiple targets, run the target stack in each of the target accounts.
 
-[![Dev Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch Dev Account Stack")](https://securitydude-pipeline-demo.s3.amazonaws.com/dev-templates/pipeline-MASTER.yaml)
+Dev Account Stack [![Dev Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch Dev Account Stack")](https://securitydude-pipeline-demo.s3.amazonaws.com/dev-templates/pipeline-MASTER.yaml)
 
-DevOps (Tools) Account Stack
+DevOps (Tools) Account Stack [![DevOps (Tools) Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch DevOps (Tools) Account Stack")](https://securitydude-pipeline-demo.s3.amazonaws.com/devops-templates/pipeline-MASTER.yaml)
 
-Target Account Stacks
+Target Account Stack(s) [![Target Account Stack(s)](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Target Account Stack(s) Stack")](https://securitydude-pipeline-demo.s3.amazonaws.com/target-templates/pipeline-MASTER.yaml)
 
 3. Log into the Dev account to create a code commit user
 - Note the CodeCommit repo name
