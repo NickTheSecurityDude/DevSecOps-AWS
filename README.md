@@ -13,7 +13,7 @@ For extra security, we use manual approvals in both the DevOps account, as well 
 <img src="https://securitydude-article-images.s3.amazonaws.com/manual-approval.png" width="600">
 
 Here is what our architecture looks like:
-<img src="https://securitydude-article-images.s3.amazonaws.com/devops-arch.png" width="800">
+<img src="https://securitydude-article-images.s3.amazonaws.com/devops-arch1.png" width="800">
 
 Here's how to get started:
 
