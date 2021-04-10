@@ -1,4 +1,4 @@
-# DevSecOps-AWS
+# DevSecOps on AWS Using CodeCommit, CodeBuild and CodePipeline.
 
 This guide will show you how to lauch a multi-account DevSecOps CodePipeline.
 
