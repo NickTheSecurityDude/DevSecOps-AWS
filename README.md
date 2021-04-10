@@ -74,7 +74,7 @@ Goto Build-->Report history, and click on the latest report to view the results.
 
 7. CodeBuild also checks for valid template syntax, for example, remove a : anywhere in the file and commit the change.  CodeBuild will fail and the bad template will not be released to the test/prod environments.
 
-(c) Copyright 2020 - NickTheSecurityDude
+(c) Copyright 2021 - NickTheSecurityDude
 
 Disclaimer:
 For informational/educational purposes only. Bugs are likely and can be reported on github.
