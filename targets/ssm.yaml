@@ -1,0 +1,13 @@
+Parameters:
+  ProjectPrefix:
+    Type: String
+  VPCID:
+    Type: String  
+Resources:
+  VPCSSM:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      DataType: text
+      Name: !Sub ${ProjectPrefix}-vpcid
+      Type: String
+      Value: !Ref VPCID

@@ -1,0 +1,21 @@
+Parameters:
+  IAMLambdaStack:
+    Type: String
+  ProjectPrefix:
+    Type: String
+  TemplateBucket:
+    Type: String
+  LambdaFolder:
+    Type: String
+Resources:
+  ReleaseLambda:
+    Type: AWS::Lambda::Function
+    Properties: 
+      FunctionName: !Sub ${ProjectPrefix}-ReleaseLambda
+      Code: 
+        S3Bucket: !Ref TemplateBucket
+        S3Key: !Sub ${LambdaFolder}/ReleaseLambda.zip
+      Handler: ReleaseLambda.lambda_handler
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/${ProjectPrefix}-LambdaRole
+      Runtime: python3.8
+      Timeout: 300

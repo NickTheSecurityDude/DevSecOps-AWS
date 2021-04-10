@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  ProjectPrefix:
+    Type: String
+    Description: Use the same project name for ALL stacks
+  DevOpsAcct:
+    Type: String
+    Description: Account ID of your DevOps/Tools Account
+  TemplateBucket:
+    Type: String
+    Default: securitydude-pipeline-demo
+    Description: The default is fine for the demo
+  TemplateFolder:
+    Type: String
+    Default: dev-templates
+    Description: The default is fine for the demo
+  TempalteRegion:
+    Type: String
+    Default: s3
+    Description: Use s3 for us-east-1 or s3-region for other regions, the default is fine for the demo
+  RepoBranch:
+    Type: String
+    Default: testing
+    Description: CodeCommit Branch, the default is fine for the demo
+Resources:
+  IAMCCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectPrefix: !Ref ProjectPrefix
+        DevOpsAcct: !Ref DevOpsAcct
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /iam-codecommit.yaml
+  CodeCommitStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectPrefix: !Ref ProjectPrefix
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /codecommit.yaml

@@ -1,0 +1,91 @@
+Parameters: 
+  IAMCodeBuildStack:
+    Type: String
+  IAMCodePipelineStack:
+    Type: String
+  KMSStack:
+    Type: String
+  CodeBuildStack:
+    Type: String
+  ProjectPrefix:
+    Type: String
+  OPSBucket:
+    Type: String
+  Targets:
+    Type: String
+  DevAcct: 
+    Type: String
+  RepoBranch: 
+    Type: String
+Resources:
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties: 
+      RoleArn: !ImportValue
+        'Fn::Sub': '${IAMCodePipelineStack}-CodePipelineRoleArn'
+      ArtifactStore: 
+        Location: !Sub ${ProjectPrefix}-artifacts
+        Type: S3
+        EncryptionKey:
+          Id: !ImportValue
+            'Fn::Sub': '${KMSStack}-PipelineKMSArn'
+          Type: KMS
+      Name: !Sub ${ProjectPrefix}-pipeline
+      Stages: 
+        - Name: Source
+          Actions: 
+            - Name: SourceAction
+              RunOrder: 1
+              ActionTypeId:
+                Category: Source
+                Provider: CodeCommit
+                Owner: AWS
+                Version: 1
+              Configuration:
+                RepositoryName: !Sub ${ProjectPrefix}-Repo-${AWS::Region}-${DevAcct}
+                BranchName: !Ref RepoBranch
+              RoleArn: !Sub arn:aws:iam::${DevAcct}:role/${ProjectPrefix}-CodeCommitRole
+              OutputArtifacts: 
+                - Name: SourceArtifact
+        - Name: Build
+          Actions:
+            - Name: BuildAction
+              RunOrder: 1
+              InputArtifacts:
+                - Name: SourceArtifact
+              ActionTypeId:
+                Category: Build
+                Provider: CodeBuild
+                Owner: AWS
+                Version: 1
+              Configuration:
+                ProjectName: !ImportValue 
+                  'Fn::Sub': '${CodeBuildStack}-CodeBuildProjName'
+                EnvironmentVariables: !Sub "[{\"name\":\"Targets\",\"value\":\"${Targets}\",\"type\":\"PLAINTEXT\"}]"
+              OutputArtifacts:
+                - Name: BuildArtifact
+        -  Name: ApproveDeployment
+           Actions: 
+             - Name: ApproveDeployment
+               ActionTypeId: 
+                 Category: Approval 
+                 Owner: AWS 
+                 Version: 1
+                 Provider: Manual
+        - Name: ReleaseLambda
+          Actions:
+            - Name: DeployAction
+              RunOrder: 1
+              InputArtifacts:
+                - Name: BuildArtifact
+              ActionTypeId:
+                Category: Invoke
+                Provider: Lambda
+                Owner: AWS
+                Version: 1
+              Configuration:
+                FunctionName: !Sub ${ProjectPrefix}-ReleaseLambda
+                UserParameters: !Sub "{ 	\"stack\": \"none_yet\", 	\"artifact\": \"BuildArtifact\", 	\"file\": \"master.yaml\" ,  \"source_bucket\":\"${ProjectPrefix}-cf-repo\", \"source_folder\": \"lambda\", \"accounts\": [${Targets}],\"bucket_prefix\": \"${ProjectPrefix}\"}"
+      Tags: 
+        - Key: "keyname1"
+          Value: "value1"

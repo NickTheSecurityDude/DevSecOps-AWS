@@ -1,0 +1,80 @@
+Parameters:
+  ProjectPrefix:
+    Type: String
+  KMSStack:
+    Type: String
+  DevAcct:
+    Type: String
+Resources:
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectPrefix}-artifacts
+      BucketEncryption:
+        ServerSideEncryptionConfiguration: 
+          -
+            BucketKeyEnabled: true
+            ServerSideEncryptionByDefault: 
+              KMSMasterKeyID: !ImportValue 
+                'Fn::Sub': '${KMSStack}-PipelineKMSArn'
+              SSEAlgorithm: aws:kms
+      VersioningConfiguration: 
+        Status:  Enabled
+  ArtifactBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties: 
+      Bucket: !Ref ArtifactBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            AWS: !Sub arn:aws:iam::${DevAcct}:role/${ProjectPrefix}-CodeCommitRole
+          Action:
+            - s3:Get*
+            - s3:Put*
+          Resource:
+            - !Sub arn:aws:s3:::${ProjectPrefix}-artifacts/*
+  PipelineInputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectPrefix}-pipeline-input
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          -
+            BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !ImportValue
+                'Fn::Sub': '${KMSStack}-PipelineKMSArn'
+              SSEAlgorithm: aws:kms
+      VersioningConfiguration:
+        Status:  Enabled
+  CFRepoBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectPrefix}-cf-repo
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          -
+            BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !ImportValue
+                'Fn::Sub': '${KMSStack}-PipelineKMSArn'
+              SSEAlgorithm: aws:kms
+      VersioningConfiguration:
+        Status:  Enabled
+Outputs:
+  ArtifactBucketName:
+    Value: !Ref ArtifactBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-ArtifactBucket"
+  PipelineInputBucketName:
+    Value: !Ref PipelineInputBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-PipelineInputBucket"
+  CFRepoBucketName:
+    Value: !Ref CFRepoBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-CFRepoBucket"
+  StackName:
+    Value: !Ref AWS::StackName

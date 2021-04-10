@@ -1,0 +1,181 @@
+Parameters:
+  OPSBucket:
+    Type: String
+  ProjectPrefix:
+    Type: String
+  KMSStack:
+    Type: String
+  OPSBucketKeyArn: 
+    Type: String
+Resources:
+  CodeBuildRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub ${ProjectPrefix}-CodeBuildRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "codebuild.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: "CodeBuildPolicy1"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "organizations:Describe*"
+                  - "organizations:List*"
+                Resource:
+                  - "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectPrefix}-build"
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectPrefix}-build:*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "codebuild:CreateReportGroup"
+                  - "codebuild:CreateReport"
+                  - "codebuild:UpdateReport"
+                  - "codebuild:BatchPutTestCases"
+                  - "codebuild:BatchPutCodeCoverages"
+                Resource:
+                  - !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/${ProjectPrefix}-build-*"
+        -
+          PolicyName: "CodeBuildPolicy2"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "cloudformation:ValidateTemplate"
+                Resource:
+                  - "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:GetBucketAcl"
+                  - "logs:CreateLogGroup"
+                  - "logs:PutLogEvents"
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "codebuild:CreateReportGroup"
+                  - "codebuild:CreateReport"
+                  - "logs:CreateLogStream"
+                  - "codebuild:UpdateReport"
+                  - "codebuild:BatchPutCodeCoverages"
+                  - "s3:GetBucketLocation"
+                  - "codebuild:BatchPutTestCases"
+                  - "s3:GetObjectVersion"
+                Resource:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectPrefix}-build"
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:/aws/codebuild/${ProjectPrefix}-build:*"
+                  - !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/${ProjectPrefix}-build"
+        -  
+          PolicyName: "CodeBuildPolicy3"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "cloudformation:ValidateTemplate"
+                Resource:
+                  - "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:PutLogEvents"
+                  - "logs:CreateLogStream"
+                  - "s3:ListBucket"
+                  - "s3:GetBucketAcl"
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "s3:GetBucketLocation"
+                  - "s3:GetObjectVersion"
+                  - "codebuild:CreateReportGroup"
+                  - "codebuild:CreateReport"
+                  - "codebuild:UpdateReport"
+                  - "codebuild:BatchPutCodeCoverages"
+                  - "codebuild:BatchPutTestCases"
+                Resource:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectPrefix}-build"
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:/aws/codebuild/${ProjectPrefix}-build:*"
+                  - !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/${ProjectPrefix}-build"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-cf-repo"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-cf-repo/*"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-artifacts"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-artifacts/*"
+        -  
+          PolicyName: "CodeBuildPolicy4"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:GetObjectVersion"
+                Resource:
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-pipeline-input"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-pipeline-input/*"
+                  - !Sub "arn:aws:s3:::${OPSBucket}"
+                  - !Sub "arn:aws:s3:::${OPSBucket}/*"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-artifacts"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-artifacts/*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:ListBucket"
+                  - "s3:GetBucketAcl"
+                  - "s3:GetBucketLocation"
+                Resource:
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-pipeline-input"
+        -
+          PolicyName: "CodeBuildPolicy5"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "kms:GenerateDataKey"
+                  - "kms:Encrypt"
+                  - "kms:Decrypt"
+                Resource:
+                  - !ImportValue 
+                      'Fn::Sub': '${KMSStack}-PipelineKMSArn'
+        -
+          PolicyName: "CodeBuildPolicy6"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "organizations:Describe*"
+                  - "organizations:List*"
+                Resource:
+                  - "*"
+Outputs:
+  CodeBuildRoleArn:
+    Value: !GetAtt CodeBuildRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-CodeBuildRoleArn"
+  StackName:
+    Value: !Ref AWS::StackName

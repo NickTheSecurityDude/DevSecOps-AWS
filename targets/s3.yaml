@@ -1,0 +1,72 @@
+Parameters:
+  ProjectPrefix:
+    Type: String
+  KMSStack:
+    Type: String
+  DevOpsAcct:
+    Type: String
+Resources:
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectPrefix}-${AWS::Region}-${AWS::AccountId}-artifacts
+      BucketEncryption:
+        ServerSideEncryptionConfiguration: 
+          -
+            BucketKeyEnabled: true
+            ServerSideEncryptionByDefault: 
+              KMSMasterKeyID: !ImportValue 
+                'Fn::Sub': '${KMSStack}-PipelineKMSArn'
+              SSEAlgorithm: aws:kms
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration: 
+        Status:  Enabled
+  ReleaseBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub release-bucket-${ProjectPrefix}-${AWS::Region}-${AWS::AccountId}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          -
+            BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !ImportValue
+                'Fn::Sub': '${KMSStack}-PipelineKMSArn'
+              SSEAlgorithm: aws:kms
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status:  Enabled
+  ReleaseBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties: 
+      Bucket: !Ref ReleaseBucket
+      PolicyDocument:
+        Statement:
+          - Action: 's3:PutObject'
+            Effect: Allow
+            Principal: 
+              AWS: !Sub "arn:aws:iam::${DevOpsAcct}:role/${ProjectPrefix}-LambdaRole"
+            Resource: !Join 
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref ReleaseBucket
+                - /*
+Outputs:
+  ArtifactBucketName:
+    Value: !Ref ArtifactBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-ArtifactBucket"
+  ReleaseBucketName:
+    Value: !Ref ReleaseBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-ReleaseBucket"
+  StackName:
+    Value: !Ref AWS::StackName

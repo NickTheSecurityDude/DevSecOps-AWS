@@ -1,0 +1,62 @@
+Parameters: 
+  IAMCPStack:
+    Type: String
+  IAMCFStack:
+    Type: String
+  ProjectPrefix:
+    Type: String
+  SourceS3ObjectKey:
+    Type: String
+Resources:
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties: 
+      RoleArn: !ImportValue
+        'Fn::Sub': '${IAMCPStack}-CodePipelineRoleArn'
+      ArtifactStore: 
+        Location: !Sub ${ProjectPrefix}-${AWS::Region}-${AWS::AccountId}-artifacts
+        Type: S3
+      Name: !Sub ${ProjectPrefix}-${AWS::Region}-pipeline
+      Stages: 
+        - Name: Source
+          Actions: 
+            - Name: SourceAction
+              RunOrder: 1
+              ActionTypeId:
+                Category: Source
+                Provider: S3
+                Owner: AWS
+                Version: 1
+              Configuration:
+                S3Bucket: !Sub release-bucket-${ProjectPrefix}-${AWS::Region}-${AWS::AccountId}
+                S3ObjectKey: !Ref SourceS3ObjectKey
+              OutputArtifacts: 
+                - Name: SourceArtifact
+        -  Name: ApproveDeployment
+           Actions: 
+             - Name: ApproveDeployment
+               ActionTypeId: 
+                 Category: Approval 
+                 Owner: AWS 
+                 Version: 1
+                 Provider: Manual
+        - Name: Deploy
+          Actions:
+            - Name: CreateStack
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              InputArtifacts:
+                - Name: SourceArtifact
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                RoleArn: !ImportValue
+                  'Fn::Sub': '${IAMCFStack}-CloudFormationRoleArn'
+                StackName: !Ref ProjectPrefix
+                TemplatePath: SourceArtifact::master.yaml
+              RunOrder: '1'
+      Tags: 
+        - Key: "keyname1"
+          Value: "value1"

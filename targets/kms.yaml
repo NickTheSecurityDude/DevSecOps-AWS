@@ -1,0 +1,66 @@
+Parameters:
+  ProjectPrefix:
+    Type: String
+  DevOpsAcct:
+    Type: String
+Resources:
+  PipelineKMS:
+    Type: AWS::KMS::Key
+    Properties: 
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: key-default-1
+        Statement:
+        - Sid: Allow administration of the key
+          Effect: Allow
+          Principal:
+            AWS: "*"
+          Action:
+            - kms:Create*
+            - kms:Describe*
+            - kms:Enable*
+            - kms:List*
+            - kms:Put*
+            - kms:Update*
+            - kms:Revoke*
+            - kms:Disable*
+            - kms:Get*
+            - kms:Delete*
+            - kms:ScheduleKeyDeletion
+            - kms:CancelKeyDeletion
+            - kms:Encrypt
+            - kms:Decrypt
+            - kms:ReEncrypt*
+            - kms:GenerateDataKey
+            - kms:GenerateDataKeyWithoutPlaintext
+          Resource: '*'
+          Condition:
+            ArnLike:
+              "aws:PrincipalArn": !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess*"
+        - Sid: Allow use of the key
+          Effect: Allow
+          Principal:
+            AWS: 
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/${ProjectPrefix}-CodePipelineRole
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/${ProjectPrefix}-CloudFormationRole
+              - !Sub arn:aws:iam::${DevOpsAcct}:role/${ProjectPrefix}-LambdaRole
+          Action:
+            - kms:DescribeKey
+            - kms:Encrypt
+            - kms:Decrypt
+            - kms:ReEncrypt*
+            - kms:GenerateDataKey
+            - kms:GenerateDataKeyWithoutPlaintext
+          Resource: '*'
+  PipelineKMSAlias:
+    Type: AWS::KMS::Alias
+    Properties: 
+      AliasName: !Sub alias/${ProjectPrefix}-key
+      TargetKeyId: !Ref PipelineKMS
+Outputs:
+  PipelineKMSArn:
+    Value: !GetAtt PipelineKMS.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-PipelineKMSArn"
+  StackName:
+    Value: !Ref AWS::StackName

@@ -1,0 +1,130 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  ProjectPrefix:
+    Type: String
+    Description: Use the same project name for ALL stacks
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: Select any VPC ID for the demo.
+  SourceS3ObjectKey:
+    Type: String
+    Default: lambda/master.zip
+    Description: The default is fine for the demo.  
+  DevOpsAcct:
+    Type: String
+    Description: Account ID of your DevOps/Tools Account
+  TemplateBucket:
+    Type: String
+    Default: securitydude-pipeline-demo
+    Description: The default is fine for the demo.  
+  TemplateFolder:
+    Type: String
+    Default: target-templates
+    Description: The default is fine for the demo.
+  TempalteRegion:
+    Type: String
+    Default: s3
+    Description: The default is fine for the demo.  Use s3 for us-east-1 or s3-region for other regions
+Resources:
+  SSMStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectPrefix: !Ref ProjectPrefix
+        VPCID: !Ref VPCID
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /ssm.yaml
+  IAMCFStack:
+    DependsOn: SSMStack
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectPrefix: !Ref ProjectPrefix
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /iamcfstack.yaml
+  IAMCPStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectPrefix: !Ref ProjectPrefix
+        DevOpsAcct: !Ref DevOpsAcct
+        IAMCFStack: !GetAtt IAMCFStack.Outputs.StackName
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /iamcpstack.yaml
+  KMSStack:
+    DependsOn: IAMCPStack
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectPrefix: !Ref ProjectPrefix
+        DevOpsAcct: !Ref DevOpsAcct
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /kms.yaml
+  S3Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectPrefix: !Ref ProjectPrefix
+        KMSStack: !GetAtt KMSStack.Outputs.StackName
+        DevOpsAcct: !Ref DevOpsAcct
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /s3.yaml
+  CodePipelineStack:
+    DependsOn: S3Stack
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectPrefix: !Ref ProjectPrefix
+        IAMCPStack: !GetAtt IAMCPStack.Outputs.StackName
+        IAMCFStack: !GetAtt IAMCFStack.Outputs.StackName
+        SourceS3ObjectKey: !Ref SourceS3ObjectKey
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /codepipeline.yaml

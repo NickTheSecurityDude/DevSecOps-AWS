@@ -1,0 +1,9 @@
+Parameters:
+  ProjectPrefix:
+    Type: String
+    Default: proj-123
+Resources:
+  CodeCommitRepo:
+    Type: AWS::CodeCommit::Repository
+    Properties: 
+      RepositoryName: !Sub ${ProjectPrefix}-Repo-${AWS::Region}-${AWS::AccountId}

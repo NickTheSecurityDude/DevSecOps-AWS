@@ -1,0 +1,47 @@
+Parameters:
+  ProjectPrefix:
+    Type: String
+  DevOpsAcct:
+    Type: String
+Resources:
+  DevCCRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectPrefix}-CodeCommitRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Ref DevOpsAcct
+            Action:
+              - sts:AssumeRole
+      Path: /
+  Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: DevCCPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Action:
+              - codecommit:BatchGetRepositories
+              - codecommit:Get*
+              - codecommit:GitPull
+              - codecommit:List*
+              - codecommit:CancelUploadArchive
+              - codecommit:UploadArchive
+              - s3:*
+            Resource: "*"
+          -
+            Effect: Allow
+            Action:
+              - kms:*
+            Resource: !Sub "arn:aws:kms:${AWS::Region}:${DevOpsAcct}:key/*"
+      Roles:
+        -
+          !Ref DevCCRole

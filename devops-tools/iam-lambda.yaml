@@ -1,0 +1,116 @@
+Parameters:
+  S3Stack:
+    Type: String
+  KMSStack:
+    Type: String
+  ProjectPrefix: 
+    Type: String
+  RemoteBucket:
+    Type: String
+Resources:
+  LambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub ${ProjectPrefix}-LambdaRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: "LambdaPolicy1"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "codepipeline:AcknowledgeJob"
+                  - "codepipeline:GetJobDetails"
+                  - "codepipeline:PollForJobs"
+                  - "codepipeline:PutJobFailureResult"
+                  - "codepipeline:PutJobSuccessResult"
+                Resource:
+                  - "*"
+        -
+          PolicyName: "LambdaPolicy2"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                Resource:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${ProjectPrefix}-ReleaseLambda:*"
+        -
+          PolicyName: "LambdaPolicy3"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:GetObjectAcl"
+                  - "s3:PutObjectAcl"
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "s3:GetEncryptionConfiguration"
+                  - "s3:ListBucketVersions"
+                  - "s3:ListBucket"
+                  - "s3:GetBucketVersioning"
+                  - "s3:GetObjectVersion"
+                  - "s3:GetEncryptionConfiguration"
+                Resource:
+                  - !Sub "arn:aws:s3:::${RemoteBucket}*/*"
+                  - !Sub "arn:aws:s3:::${RemoteBucket}*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:ListAllMyBuckets"
+                Resource:
+                  - "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "s3:GetEncryptionConfiguration"
+                  - "s3:ListBucketVersions"
+                  - "s3:ListBucket"
+                  - "s3:GetBucketVersioning"
+                  - "s3:GetObjectVersion"
+                  - "kms:Decrypt"
+                  - "kms:Encrypt"
+                  - "kms:GenerateDataKey"
+                  - "kms:PutKeyPolicy"
+                Resource:
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-pipeline-input"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-pipeline-input/*"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-artifacts"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-artifacts/*"
+                  - !Sub 'arn:aws:s3:::${ProjectPrefix}-cf-repo'
+                  - !Sub 'arn:aws:s3:::${ProjectPrefix}-cf-repo/*'
+                  - !ImportValue
+                      'Fn::Sub': '${KMSStack}-PipelineKMSArn'
+                  - !Sub 'arn:aws:kms:${AWS::Region}:*:key/*'
+Outputs:
+  LambdaRoleArn:
+    Value: !GetAtt LambdaRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-LambdaRoleArn"
+  StackName:
+    Value: !Ref AWS::StackName  

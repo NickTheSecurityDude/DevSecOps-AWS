@@ -1,0 +1,113 @@
+Parameters: 
+  IAMCodeBuildStack:
+    Type: String
+  S3Stack:
+    Type: String
+  ProjectPrefix:
+    Type: String
+  OPSBucket:
+    Type: String
+Resources:
+  CodeBuild:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Name: !Sub ${ProjectPrefix}-build 
+      Description: Demo of CodeBuild with CodeDeploy pipeline.
+      ServiceRole: !ImportValue 
+        'Fn::Sub': '${IAMCodeBuildStack}-CodeBuildRoleArn'
+      TimeoutInMinutes: 5
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: !Sub |
+            version: 0.2
+            phases:
+              install:           
+                runtime-versions:
+                    python: 3.7
+                    ruby: 2.6   
+                commands:
+                  - export date=`date +%Y-%m-%dT%H:%M:%S.%NZ`
+                  - echo Installing cfn_nag - `pwd`
+                  - gem install cfn-nag
+                  - echo cfn_nag installation complete `date`
+              pre_build:
+                commands:
+                  - pip install --upgrade pip
+                  - pip install pipenv --user
+                  - pip install awscli aws-sam-cli junit_xml
+                  - mkdir report
+                  - ls
+                  - echo "Validating CFN templates"
+                  - set -e;for cfn_template in `ls *.yaml`; do
+                      echo "Validating CloudFormation template file $cfn_template";
+                      aws cloudformation validate-template --template-body file://$cfn_template;
+                    done
+              build:
+                commands:
+                  - echo "Populate Bucket and Folder Name"
+                  - sed -i "s/FOLDER_NAME/$Folder/" master.yaml
+                  - sed -i "s/PROJECT_PREFIX/$ProjectPrefix/" master.yaml
+                  - echo "Template Security Check"
+                  - echo $OPSBucket
+                  - if [[ $SKIP_CFN_NAG -eq 1 ]];then
+                      echo "Skipping CFN_NAG test";
+                      aws s3 cp s3://$OPSBucket/cfn-nag-output.xml report/cfn-nag-output.xml;
+                    else
+                      aws s3 cp s3://$OPSBucket/junit_report.py ./;
+                      cfn_nag_scan --input-path ./ --template-pattern=\.yaml$ --output-format=json >report/cfn-nag-output.json;
+                      which python3;
+                      python3 junit_report.py report/cfn-nag-output.json >report/cfn-nag-output.xml;
+                    fi
+                  - ls
+                  - if [ -f CFN_NAG_FAILURE ]; then exit 1; fi
+                  - zip master.zip master.yaml
+                  - echo $CFRepoBucket
+                  - echo $Folder
+                  - aws s3 sync --delete --exclude "*" --include "*.yaml" --include "master.zip" --exclude "master.yaml"  --exclude "**s3zip/*" ./ s3://$CFRepoBucket/$Folder/;
+                  - aws s3 cp s3://$OPSBucket/create_accounts_artifact.py ./;
+                  - python3 create_accounts_artifact.py $Targets >accounts.txt;
+                  - cat accounts.txt;
+            reports: 
+              SecurityReports: 
+                files: 
+                  - report/cfn-nag-output.xml
+                discard-paths: 'yes'
+                file-format: JunitXml
+            artifacts:
+              files:
+                - 'report/*'
+                - '**/*.yaml'
+                - '**/accounts.txt'
+      Environment:
+        Type: "LINUX_CONTAINER"
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: SKIP_CFN_NAG
+            Type: PLAINTEXT
+            Value: 0
+          - Name: ProjectPrefix
+            Type: PLAINTEXT
+            Value: !Ref ProjectPrefix
+          - Name: S3Folder
+            Type: PLAINTEXT
+            Value: lambda
+          - Name: OPSBucket
+            Type: PLAINTEXT
+            Value: !Ref OPSBucket
+          - Name: Folder
+            Type: PLAINTEXT
+            Value: lambda
+          - Name: CFRepoBucket
+            Type: PLAINTEXT
+            Value: !ImportValue
+              'Fn::Sub': '${S3Stack}-CFRepoBucket'
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+      Artifacts:
+        Type: CODEPIPELINE
+Outputs:
+  CodeBuildProjName:
+    Value: !Ref CodeBuild
+    Export:
+      Name: !Sub "${AWS::StackName}-CodeBuildProjName"
+  StackName:
+    Value: !Ref AWS::StackName

@@ -1,0 +1,190 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  ProjectPrefix:
+    Type: String
+    Description: Use the same project name for ALL stacks
+  DevAcct:
+    Type: String
+    Description: Account where code commit repo is
+  Targets:
+    Type: String
+    Description: Target(s) accounts to deploy to.  Enter 1 or more accounts, comma separated ( do not use the Dev or DevOps account)
+  OPSBucket:
+    Type: String
+    Default: securitydude-pipeline-demo-ops
+    Description: The default is fine for the demo
+  OPSBucketKeyArn:
+    Type: String
+    Default: arn
+    Description: NOT USED IN THE DEMO. To use add decrypt perm for it in iam-codebuild.yaml
+  RemoteBucket:
+    Type: String
+    Default: release-bucket
+    Description: The default is fine for the demo. Enter the prefix of the remote bucket(s), ex, release-bucket if the bucket is release-bucket-bucket-prefix-us-east-1-12345678
+  TemplateBucket:
+    Type: String
+    Default: securitydude-pipeline-demo
+    Description: The default is fine for the demo
+  TemplateFolder:
+    Type: String
+    Default: devops-templates
+    Description: The default is fine for the demo
+  LambdaFolder:
+    Type: String
+    Default: devops-lambda
+    Description: The default is fine for the demo
+  TempalteRegion:
+    Type: String
+    Default: s3
+    Description: Use s3 for us-east-1 or s3-region for other regions, the default is fine for the demo
+  RepoBranch:
+    Type: String
+    Default: testing
+    Description: CodeCommit Branch, the default is fine for the demo
+Resources:
+  KMSStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectPrefix: !Ref ProjectPrefix
+        DevAcct: !Ref DevAcct
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /kms.yaml
+  S3Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectPrefix: !Ref ProjectPrefix
+        KMSStack: !GetAtt KMSStack.Outputs.StackName
+        DevAcct: !Ref DevAcct
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /s3.yaml
+  IAMCBStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        OPSBucket: !Ref OPSBucket
+        ProjectPrefix: !Ref ProjectPrefix
+        KMSStack: !GetAtt KMSStack.Outputs.StackName
+        OPSBucketKeyArn: !Ref OPSBucketKeyArn
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /iam-codebuild.yaml
+  IAMCPStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        OPSBucket: !Ref OPSBucket
+        ProjectPrefix: !Ref ProjectPrefix
+        KMSStack: !GetAtt KMSStack.Outputs.StackName
+        DevAcct: !Ref DevAcct
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /iam-codepipeline.yaml
+  IAMLambdaStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        RemoteBucket: !Ref RemoteBucket
+        ProjectPrefix: !Ref ProjectPrefix
+        S3Stack: !GetAtt S3Stack.Outputs.StackName
+        KMSStack: !GetAtt KMSStack.Outputs.StackName
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /iam-lambda.yaml
+  LambdaStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        IAMLambdaStack: !GetAtt IAMLambdaStack.Outputs.StackName
+        ProjectPrefix: !Ref ProjectPrefix
+        TemplateBucket: !Ref TemplateBucket
+        LambdaFolder: !Ref LambdaFolder
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /lambda.yaml
+  CodeBuildStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        IAMCodeBuildStack: !GetAtt IAMCBStack.Outputs.StackName
+        S3Stack: !GetAtt S3Stack.Outputs.StackName
+        ProjectPrefix: !Ref ProjectPrefix
+        OPSBucket: !Ref OPSBucket        
+      TemplateURL: !Join
+        - ''
+        - - https://
+          - !Ref TemplateBucket
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /codebuild.yaml
+  CodePipelineStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters: 
+        IAMCodeBuildStack: !GetAtt IAMCBStack.Outputs.StackName
+        IAMCodePipelineStack: !GetAtt IAMCPStack.Outputs.StackName
+        CodeBuildStack: !GetAtt CodeBuildStack.Outputs.StackName
+        KMSStack: !GetAtt KMSStack.Outputs.StackName
+        OPSBucket: !Ref OPSBucket
+        ProjectPrefix: !Ref ProjectPrefix
+        Targets: !Ref Targets
+        DevAcct: !Ref DevAcct
+        RepoBranch: !Ref RepoBranch
+      TemplateURL: !Join
+        - ''
+        - - https://               
+          - !Ref TemplateBucket  
+          - .
+          - !Ref TempalteRegion
+          - .
+          - amazonaws.com/
+          - !Ref TemplateFolder
+          - /codepipeline.yaml

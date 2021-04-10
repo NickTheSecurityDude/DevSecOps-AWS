@@ -1,0 +1,91 @@
+Parameters:
+  OPSBucket:
+    Type: String
+  ProjectPrefix:
+    Type: String
+  KMSStack:
+    Type: String
+  DevAcct:
+    Type: String
+Resources:
+  CodePipelineRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub ${ProjectPrefix}-CodePipelineRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "codepipeline.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: "CodePipelinePolicy1"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "codebuild:BatchGetBuilds"
+                  - "codebuild:StartBuild"
+                  - "codepipeline:*"
+                  - "codecommit:Get*"
+                  - "codebuild:BatchGetBuilds"
+                  - "codecommit:UploadArchive"
+                  - "codecommit:GitPull"
+                  - "codecommit:CancelUploadArchive"
+                  - "codepipeline:*"
+                  - "codecommit:List*"
+                  - "codebuild:StartBuild"
+                  - "s3:GetBucketLocation"
+                  - "s3:ListAllMyBuckets"
+                  - "iam:ListRoles"
+                Resource:
+                  - "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "s3:GetEncryptionConfiguration"
+                  - "s3:ListBucketVersions"
+                  - "s3:ListBucket"
+                  - "s3:GetBucketVersioning"
+                  - "s3:GetObjectVersion"
+                  - "kms:Decrypt" 
+                  - "kms:Encrypt"
+                  - "kms:GenerateDataKey"
+                Resource:
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-pipeline-input"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-pipeline-input/*"
+                  - !Sub "arn:aws:s3:::${OPSBucket}"
+                  - !Sub "arn:aws:s3:::${OPSBucket}/*"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-artifacts"
+                  - !Sub "arn:aws:s3:::${ProjectPrefix}-artifacts/*"
+                  - !ImportValue 
+                      'Fn::Sub': '${KMSStack}-PipelineKMSArn'
+              -  
+                Effect: "Allow"
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource:
+                  - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectPrefix}-ReleaseLambda"
+              -
+                Effect: "Allow"
+                Action:
+                  - "sts:AssumeRole"
+                Resource:
+                  - !Sub "arn:aws:iam::${DevAcct}:role/${ProjectPrefix}-CodeCommitRole"
+
+Outputs:
+  CodePipelineRoleArn:
+    Value: !GetAtt CodePipelineRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-CodePipelineRoleArn"
+  StackName:
+    Value: !Ref AWS::StackName 
