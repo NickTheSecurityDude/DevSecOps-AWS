@@ -6,6 +6,8 @@ In order to help protect your supply chain (Development Operation) its important
 
 We turn CodePipeline into a DevSecOps pipeline by using CFN_NAG to check out templates for common security issues before deploying them.
 
+For extra security, we use manual approvals in both the DevOps account, as well as the target accounts, however if your use case allows, you can remove that step to make it fully automated.
+
 Currently only US-East-1 is supported.
 
 Here's how to get started:
