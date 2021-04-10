@@ -38,14 +38,14 @@ IdentityFile ~/.ssh/id_rsa
 
 - Clone the CodeCommit repo:
 ```
-  git clone ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/<repo name>
-  cd <repo name>
-  wget https://securitydude-pipeline-demo.s3.amazonaws.com/stack-for-testing/pipeline-testing.zip
-  unzip pipeline-testing.zip
-  git checkout -b testing
-  git add *.yaml
-  git commit -m "Initial Commit"
-  git push origin testing
+git clone ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/<repo name>
+cd <repo name>
+wget https://securitydude-pipeline-demo.s3.amazonaws.com/stack-for-testing/pipeline-testing.zip
+unzip pipeline-testing.zip
+git checkout -b testing
+git add *.yaml
+git commit -m "Initial Commit"
+git push origin testing
 ```
 
 4. Goto the DevOps (Tools) Account, and check CodePipeline. (Pipeline may take up to 2-3 minutes to start)
