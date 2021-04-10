@@ -15,11 +15,11 @@ Currently only US-East-1 is supported.
 
 2. Create the three stacks in order (use us-east-1), wait for each stack to fully complete and log out before moving onto the next,  if you have multiple targets, run the target stack in each of the target accounts.
 
-| Stack     | Launch |
-| ----------- | ----------- |
-| Dev Account Stack | [![Dev Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch Dev Account Stack")](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=dev-stack&templateURL=https://securitydude-pipeline-demo.s3.amazonaws.com/dev-templates/pipeline-MASTER.yaml) |
-| DevOps (Tools) Account Stack | [![DevOps (Tools) Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch DevOps (Tools) Account Stack")](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=devops-stack&templateURL=https://securitydude-pipeline-demo.s3.amazonaws.com/devops-templates/pipeline-MASTER.yaml) |
-| Target Account Stack(s) | [![Target Account Stack(s)](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Target Account Stack(s) Stack")](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=target-stack&templateURL=https://securitydude-pipeline-demo.s3.amazonaws.com/target-templates/pipeline-MASTER.yaml) |
+| Order | Stack     | Launch |
+| --------- | ----------- | ----------- |
+| 1 | Dev Account Stack | [![Dev Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch Dev Account Stack")](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=dev-stack&templateURL=https://securitydude-pipeline-demo.s3.amazonaws.com/dev-templates/pipeline-MASTER.yaml) |
+| 2 | DevOps (Tools) Account Stack | [![DevOps (Tools) Account Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Launch DevOps (Tools) Account Stack")](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=devops-stack&templateURL=https://securitydude-pipeline-demo.s3.amazonaws.com/devops-templates/pipeline-MASTER.yaml) |
+| 3 | Target Account Stack(s) | [![Target Account Stack(s)](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png "Target Account Stack(s) Stack")](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=target-stack&templateURL=https://securitydude-pipeline-demo.s3.amazonaws.com/target-templates/pipeline-MASTER.yaml) |
 
 3. Log into the Dev account to create a code commit user
 - Note the CodeCommit repo name
