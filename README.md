@@ -28,7 +28,7 @@ Here's how to get started:
 
 I recommend using SSO to easily switch between accounts, and you can optionally use 1 - 3+ OU's (Organizational Units) for this.
 
-2. Create the three stacks in order (use us-east-1), wait for each stack to fully complete and log out before moving onto the next,  if you have multiple targets, run the target stack in each of the target accounts. (Currently only US-East-1 is supported.)
+2. Create the three stacks in order (use us-east-1), wait for each stack to fully complete and log out before moving onto the next,  if you have multiple targets, run the target stack in each of the target accounts. (Currently only US-East-1 is supported.).  (Files in this repo are for reference only, you don't need to clone this repo to launch the stacks, simply click the "Launch Stack" buttons).
 
 | Order | Stack     | Launch |
 | --------- | ----------- | ----------- |
