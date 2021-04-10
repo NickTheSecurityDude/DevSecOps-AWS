@@ -6,6 +6,7 @@ Currently only US-East-1 is supported.
 
 1. Fill out the helper table below:
 
+| ----------- | ----------- |
 | Project Name     | my-pipeline       |
 | Dev Acct #   | 111111111111 |
 | Tools (DevOps) Acct # | 222222222222 |
