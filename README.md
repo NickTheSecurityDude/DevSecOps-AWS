@@ -69,9 +69,7 @@ git push origin testing
 - Goto CloudFormation and view the resources it has created
 - Repeat for any additional target accounts.
 
-![](https://securitydude-article-images.s3.amazonaws.com/target-account-pipeline.png){ width=50% }
-
-![test image size](https://securitydude-article-images.s3.amazonaws.com/target-account-pipeline.png){:height="50%" width="50%"}
+<img src="https://securitydude-article-images.s3.amazonaws.com/target-account-pipeline.png" width="400">
 
 6. For testing:
 Remove one of the cfn_nag suppression lines from sg1.yaml.
