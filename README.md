@@ -71,6 +71,8 @@ git push origin testing
 
 ![](https://securitydude-article-images.s3.amazonaws.com/target-account-pipeline.png){ width=50% }
 
+![test image size](https://securitydude-article-images.s3.amazonaws.com/target-account-pipeline.png){:height="50%" width="50%"}
+
 6. For testing:
 Remove one of the cfn_nag suppression lines from sg1.yaml.
 Commit the change to the repo.
