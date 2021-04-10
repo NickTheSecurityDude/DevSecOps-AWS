@@ -30,9 +30,11 @@ Currently only US-East-1 is supported.
   Make a note of the SSH key ID
   
 Update your .ssh/config as follows (enter the SSH Key ID for the user):
+```
 Host git-codecommit.*.amazonaws.com
 User APKA...
 IdentityFile ~/.ssh/id_rsa
+```
 
 - Clone the CodeCommit repo:
 ```
