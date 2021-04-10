@@ -2,7 +2,13 @@
 
 This guide will show you how to lauch a multi-account DevSecOps CodePipeline.
 
+In order to help protect your supply chain (Development Operation) its important to reduce your blast radius and enforce separate of duties.  Therefore, for pipelines its important to use multiple accounts.  Typically this would be one dev account for the developers, which will contain your CodeCommit repos, then a second account will contain your DevOps tools, so your build server, pipeline, artifact bucket etc, and the rest of the accounts will be your differen environments, ex. test, prod, etc.
+
+We turn CodePipeline into a DevSecOps pipeline by using CFN_NAG to check out templates for common security issues before deploying them.
+
 Currently only US-East-1 is supported.
+
+Here's how to get started:
 
 1. Create a helper table like the below:
 
@@ -67,3 +73,9 @@ It will fail on the CodeBuild Step.
 Goto Build-->Report history, and click on the latest report to view the results.
 
 7. CodeBuild also checks for valid template syntax, for example, remove a : anywhere in the file and commit the change.  CodeBuild will fail and the bad template will not be released to the test/prod environments.
+
+(c) Copyright 2020 - NickTheSecurityDude
+
+Disclaimer:
+For informational/educational purposes only. Bugs are likely and can be reported on github.
+Using this will incur AWS charges.
