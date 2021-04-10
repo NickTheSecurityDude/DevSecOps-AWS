@@ -6,17 +6,12 @@ Currently only US-East-1 is supported.
 
 1. Fill out the helper table below:
 
-| Syntax      | Description |
+| Field      | Value |
 | ----------- | ----------- |
 | Project Name     | my-pipeline       |
 | Dev Acct #   | 111111111111 |
 | Tools (DevOps) Acct # | 222222222222 |
 | Target Acct #(s)   | 333333333333,444444444444 |
-
-| Syntax      | Description |
-| ----------- | ----------- |
-| Header      | Title       |
-| Paragraph   | Text        |
 
 2. Create the stacks in order (use us-east-1), wait for each stack to fully complete before moving onto the next
 
