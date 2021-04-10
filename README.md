@@ -1,4 +1,4 @@
-# DevSecOps on AWS Using CodeCommit, CodeBuild and CodePipeline.
+# DevSecOps on AWS Using CodeCommit, CodeBuild, CodePipeline and CloudFormation.
 
 This guide will show you how to lauch a multi-account DevSecOps CodePipeline.
 
