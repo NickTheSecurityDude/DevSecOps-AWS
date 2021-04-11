@@ -96,6 +96,8 @@ Goto Build-->Report history, and click on the latest report to view the results.
 
 <img src="https://securitydude-article-images.s3.amazonaws.com/codebuild-validate.png" width="700">
 
+Security Tip: Remove the IAM User (root) permissions in the KMS stacks and enter your key administrator principle in the section below it.  There are 2 KMS stacks one in the tools account and one in the target account(s).
+
 (c) Copyright 2021 - NickTheSecurityDude
 
 Disclaimer:
