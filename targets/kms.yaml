@@ -11,6 +11,13 @@ Resources:
         Version: '2012-10-17'
         Id: key-default-1
         Statement:
+        - Sid: REMOVE and enter principle in below section - Added for demo to prevent key lock out
+          Effect: Allow
+          Principal:
+            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+          Action:
+            - kms:*
+          Resource: '*'
         - Sid: Allow administration of the key
           Effect: Allow
           Principal:
