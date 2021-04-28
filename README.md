@@ -1,8 +1,8 @@
 # DevSecOps on AWS Using CodeCommit, CodeBuild, CodePipeline and CloudFormation.
 
-This guide will show you how to lauch a multi-account DevSecOps CodePipeline.
+This guide will show you how to launch a multi-account DevSecOps CodePipeline.
 
-In order to help protect your supply chain (Development Operation) its important to reduce your blast radius and enforce separate of duties.  Therefore, for pipelines its important to use multiple accounts.  Typically this would be one dev account for the developers, which will contain your CodeCommit repos, then a second account will contain your DevOps tools, so your build server, pipeline, artifact bucket etc, and the rest of the accounts will be your differen environments, ex. test, prod, etc.
+In order to help protect your supply chain (Development Operation) its important to reduce your blast radius and enforce separate of duties.  Therefore, for pipelines its important to use multiple accounts.  Typically this would be one dev account for the developers, which will contain your CodeCommit repos, then a second account will contain your DevOps tools, so your build server, pipeline, artifact bucket etc, and the rest of the accounts will be your different environments, ex. test, prod, etc.
 
 We turn CodePipeline into a DevSecOps pipeline by using CFN_NAG to check out templates for common security issues before deploying them.
 
